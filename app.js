@@ -1,21 +1,14 @@
-const path = require("path");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-
-const authRoutes = require("./routes/auth");
-const userRoutes = require("./routes/user");
-const bookRoutes = require("./routes/book");
-const genreRoutes = require("./routes/genre");
-const categoryRoutes = require("./routes/category");
-
+const peopleRoutes = require("./routes/people");
+const japaneseRoutes = require("./routes/japanese");
+const path = require('path');
 const app = express();
 const PORT = 5002;
 
 app.use(bodyParser.json());
-
-app.use("/images", express.static(path.join(__dirname, "images")));
-
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -25,15 +18,13 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
+const audioFolder = path.join(__dirname, 'controllers', 'audio');
 
-app.use("/auth", authRoutes);
-app.use("/user", userRoutes);
-app.use("/book", bookRoutes);
-app.use("/genre", genreRoutes);
-app.use("/category", categoryRoutes);
-
+// Настройка middleware для обслуживания статических файлов из папки audioFolder
+app.use('/audio', express.static(audioFolder));
+app.use("/japanese", japaneseRoutes);
+app.use("/people", peopleRoutes);
 app.use((error, req, res, next) => {
-  console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
   const data = error.data;
@@ -41,13 +32,14 @@ app.use((error, req, res, next) => {
 });
 
 const dbURL =
-  "mongodb+srv://maxim4ik:qSfI1yz2bti9bQ0W@cluster0.nyu4b6m.mongodb.net/?retryWrites=true&w=majority";
+  "mongodb+srv://hhbbj63:CbJovalpgeUjFAWQ@cluster0.fvq2i1q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 mongoose
   .connect(dbURL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
+    ssl: true
   })
   .then(() => {
     app.listen(PORT, () => {
